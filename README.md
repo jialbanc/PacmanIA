@@ -1,6 +1,9 @@
 #PROYECTO INTELIGENCIA ARTIFICIAL
+
 PRIMER PARCIAL
+
 PACMAN INTELIGENTE
+
 35 Años de Pacman :D
 
 Este proyecto busca recrear el famoso juego de Pacman e implementar algoritmos de inteligencia artificial sobre el mismo.
