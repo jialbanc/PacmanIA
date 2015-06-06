@@ -68,7 +68,7 @@ class game ():
                 
         def StartNewGame (self):
                 self.levelNum = 1
-                self.SetMode( 4 )
+                self.SetMode( 3 )
                 thisLevel.LoadLevel( thisGame.GetLevelNum() )
 
                 
@@ -501,7 +501,7 @@ class level ():
                                                         self.pellets += 1
                                                         
                                         rowNum += 1   
-                GetCrossRef()                  
+                GetCrossRef()
                 # do all the level-starting stuff
                 self.Restart()
                 
@@ -545,7 +545,7 @@ def CheckInputs():
                             player.velX = 0
                             player.velY = -player.speed
                     
-    elif thisGame.mode == 3:
+    elif thisGame.mode == 2:
             if pygame.key.get_pressed()[ pygame.K_RETURN ] or (js!=None and js.get_button(JS_STARTBUTTON)):
                     thisGame.StartNewGame()
 
@@ -622,7 +622,7 @@ tileIDImage = {} # gives tile image (when the ID# is known)
 thisGame = game()
 thisLevel = level()
 #Podemos setear el nivel que queramos si modificamos este parametro Ej:
-#thisLevel.LoadLevel( 1 )
+#thisLevel.LoadLevel( 3 )
 thisLevel.LoadLevel( thisGame.GetLevelNum() )
 
 window = pygame.display.set_mode( thisGame.screenSize, pygame.HWSURFACE | pygame.DOUBLEBUF )
@@ -637,7 +637,7 @@ else: js=None
 while True: 
 
         CheckIfCloseButton( pygame.event.get() )
-        thisGame.mode = 1
+        #thisGame.mode = 1
         if thisGame.mode == 1:
                 # normal gameplay mode
                 CheckInputs()
