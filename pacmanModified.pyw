@@ -217,6 +217,13 @@ class level ():
                         return self.map[ (row * self.lvlWidth) + col ]
                 else:
                         return 0
+        def DrawExitDoor(self, (row,col)):
+                self.SetMapTile((row,col-1),113)
+                self.SetMapTile((row,col),21)
+                self.SetMapTile((row,col+1),113)
+                self.SetMapTile((row+1,col-1),106)
+                self.SetMapTile((row+1,col),0)
+                self.SetMapTile((row+1,col+1),105)
 
         def IsWall (self, (row, col)):
 
@@ -282,8 +289,8 @@ class level ():
 
                                                 if thisLevel.pellets == 0:
                                                         # no more pellets left!
-                                                        # WON THE LEVEL
-                                                        thisGame.SetMode( 4 )
+                                                        # Show exit door
+                                                        self.DrawExitDoor((0,3))
 
 
                                         elif result == tileID[ 'pellet-power' ]:
@@ -306,16 +313,18 @@ class level ():
                                                                                 player.x -= TILE_WIDTH
 
                                         elif result == tileID[ 'door-v' ]:
+                                                # If he gets to exit door WIN!
+                                                thisGame.SetMode( 4 )
                                                 # ran into a vertical door
-                                                for i in range(0, thisLevel.lvlHeight, 1):
-                                                        if not i == iRow:
-                                                                if thisLevel.GetMapTile((i, iCol)) == tileID[ 'door-v' ]:
-                                                                        player.y = i * TILE_HEIGHT
+                                                #for i in range(0, thisLevel.lvlHeight, 1):
+                                                #        if not i == iRow:
+                                                #                if thisLevel.GetMapTile((i, iCol)) == tileID[ 'door-v' ]:
+                                                #                        player.y = i * TILE_HEIGHT
 
-                                                                        if player.velY > 0:
-                                                                                player.y += TILE_HEIGHT
-                                                                        else:
-                                                                                player.y -= TILE_HEIGHT
+                                                #                        if player.velY > 0:
+                                                #                                player.y += TILE_HEIGHT
+                                                #                        else:
+                                                #                                player.y -= TILE_HEIGHT
 
 
 
@@ -649,6 +658,7 @@ while True:
 
         elif thisGame.mode == 4:
                 # pause after eating all the pellets
+
                 thisGame.modeTimer += 1
 
                 if thisGame.modeTimer == 60:
