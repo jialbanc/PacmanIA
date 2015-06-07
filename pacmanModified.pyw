@@ -613,7 +613,7 @@ tileIDImage = {} # gives tile image (when the ID# is known)
 thisGame = game()
 thisLevel = level()
 #Podemos setear el nivel que queramos si modificamos este parametro Ej:
-#thisLevel.LoadLevel( 3 )
+#thisLevel.LoadLevel( 2 )
 thisLevel.LoadLevel( thisGame.GetLevelNum() )
 
 window = pygame.display.set_mode( thisGame.screenSize, pygame.HWSURFACE | pygame.DOUBLEBUF )
