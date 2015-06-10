@@ -186,14 +186,69 @@ class level ():
                         return self.map[ (row * self.lvlWidth) + col ]
                 else:
                         return 0
+        def FarestPointFromPacman(self,(row,col)):
+                dp1=(self.lvlHeight-3)
+                dp2=(self.lvlWidth-3)
+                if self.lvlHeight-row > row:
+                        if self.lvlWidth-col > col:
+                                h1=(((dp1-row)**2)+((self.lvlWidth-col)**2))**0.5
+                                h2=(((dp2-col)**2)+((self.lvlHeight-row)**2))**0.5
+                                if h1 > h2:
+                                        return dp1, self.lvlWidth
+                                else:
+                                        return self.lvlHeight, dp2
+                        else:
+                                h1=(((dp1-row)**2)+(col**2))**0.5
+                                h2=(((col-3)**2)+((self.lvlHeight-row)**2))**0.5
+                                if h1 > h2:
+                                        return dp1, 0
+                                else:
+                                        return self.lvlHeight, 3
+                else:
+                        if self.lvlWidth-col > col:
+                                h1=(((dp2-col)**2)+(row**2))**0.5
+                                h2=(((row-3)**2)+((self.lvlWidth-col)**2))**0.5
+                                if h1 > h2:
+                                        return 0, dp2
+                                else:
+                                        return 3, self.lvlWidth
+                        else:
+                                h1=(((col-3)**2)+((self.lvlHeight-row)**2))**0.5
+                                h2=(((row-3)**2)+((self.lvlWidth-col)**2))**0.5
+                                if h1 > h2:
+                                        return 0, 3
+                                else:
+                                        return 3, 0
 
         def DrawExitDoor(self, (row,col)):
-                self.SetMapTile((row,col-1),113)
-                self.SetMapTile((row,col),21)
-                self.SetMapTile((row,col+1),113)
-                self.SetMapTile((row+1,col-1),106)
-                self.SetMapTile((row+1,col),0)
-                self.SetMapTile((row+1,col+1),105)
+                if row == 0:
+                        self.SetMapTile((row,col-1),113)
+                        self.SetMapTile((row,col),21)
+                        self.SetMapTile((row,col+1),113)
+                        self.SetMapTile((row+1,col-1),106)
+                        self.SetMapTile((row+1,col),0)
+                        self.SetMapTile((row+1,col+1),105)
+                elif col == 0:
+                        self.SetMapTile((row-1,col),111)
+                        self.SetMapTile((row,col),21)
+                        self.SetMapTile((row+1,col),111)
+                        self.SetMapTile((row-1,col+1),106)
+                        self.SetMapTile((row,col+1),0)
+                        self.SetMapTile((row+1,col+1),108)
+                elif row == self.lvlHeight:
+                        self.SetMapTile((row,col-1),110)
+                        self.SetMapTile((row,col),21)
+                        self.SetMapTile((row,col+1),110)
+                        self.SetMapTile((row+1,col-1),108)
+                        self.SetMapTile((row+1,col),0)
+                        self.SetMapTile((row+1,col+1),107)
+                elif col == self.lvlWidth:
+                        self.SetMapTile((row-1,col),112)
+                        self.SetMapTile((row,col),21)
+                        self.SetMapTile((row+1,col),112)
+                        self.SetMapTile((row-1,col-1),105)
+                        self.SetMapTile((row,col-1),0)
+                        self.SetMapTile((row+1,col-1),107)
 
         def IsWall (self, (row, col)):
                 if row > thisLevel.lvlHeight - 1 or row < 0:
@@ -241,7 +296,7 @@ class level ():
                                                 if thisLevel.pellets == 0:
                                                         # no more pellets left!
                                                         # show exit door
-                                                        self.DrawExitDoor((0,3))
+                                                        self.DrawExitDoor(self.FarestPointFromPacman((iRow,iCol)))
                                         elif result == tileID[ 'door-h' ]:
                                                 # ran into a horizontal door
                                                 for i in range(0, thisLevel.lvlWidth, 1):
