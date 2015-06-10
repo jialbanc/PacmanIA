@@ -21,20 +21,12 @@
 
 # tiles
 
-1 ghost-door wall of the ghost box
 2 pellet a normal pellet (required)
-3 pellet-power a power pellet (makes pac-man invincible)
 4 start the starting position for pac-man
-
-10 ghost-blinky blinky
-11 ghost-pinky pinky
-12 ghost-inky inky
-13 ghost-sue sue
 
 20 door-h horizontal door (flip to other side of maze)
 21 door-v vertical door (flip to other side of maze)
 22 showlogo causes the logo to be drawn
-23 hiscores generate and draw a hi-score list
 
 100 wall-straight-horiz a horizontal wall
 101 wall-straight-vert a vertical wall
@@ -57,12 +49,6 @@
 133 wall-t-top a "T"-shaped wall, top-orientation
 
 140 wall-x a four-way wall
-
-300 glasses ghost glasses
-
-500 x-paintwall use this tile to paint walls automatically
-
-
 
 # sprites
 
