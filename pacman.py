@@ -188,22 +188,22 @@ class level ():
                         return 0
         def FarestPointFromPacman(self,(row,col)):
                 dp1=(self.lvlHeight-3)
-                dp2=(self.lvlWidth-3)
+                dp2=(self.lvlWidth-6)
                 if self.lvlHeight-row > row:
                         if self.lvlWidth-col > col:
                                 h1=(((dp1-row)**2)+((self.lvlWidth-col)**2))**0.5
                                 h2=(((dp2-col)**2)+((self.lvlHeight-row)**2))**0.5
                                 if h1 > h2:
-                                        return dp1, self.lvlWidth
+                                        return dp1, self.lvlWidth-1
                                 else:
-                                        return self.lvlHeight, dp2
+                                        return self.lvlHeight-1, dp2
                         else:
                                 h1=(((dp1-row)**2)+(col**2))**0.5
-                                h2=(((col-3)**2)+((self.lvlHeight-row)**2))**0.5
+                                h2=(((col-6)**2)+((self.lvlHeight-row)**2))**0.5
                                 if h1 > h2:
                                         return dp1, 0
                                 else:
-                                        return self.lvlHeight, 3
+                                        return self.lvlHeight-1, 6
                 else:
                         if self.lvlWidth-col > col:
                                 h1=(((dp2-col)**2)+(row**2))**0.5
@@ -211,12 +211,12 @@ class level ():
                                 if h1 > h2:
                                         return 0, dp2
                                 else:
-                                        return 3, self.lvlWidth
+                                        return 3, self.lvlWidth-1
                         else:
-                                h1=(((col-3)**2)+((self.lvlHeight-row)**2))**0.5
+                                h1=(((col-6)**2)+((self.lvlHeight-row)**2))**0.5
                                 h2=(((row-3)**2)+((self.lvlWidth-col)**2))**0.5
                                 if h1 > h2:
-                                        return 0, 3
+                                        return 0, 6
                                 else:
                                         return 3, 0
 
@@ -234,21 +234,27 @@ class level ():
                         self.SetMapTile((row+1,col),111)
                         self.SetMapTile((row-1,col+1),106)
                         self.SetMapTile((row,col+1),0)
-                        self.SetMapTile((row+1,col+1),108)
-                elif row == self.lvlHeight:
+                        if self.GetMapTile(row+1,col+1)!=101:
+                                self.SetMapTile((row+1,col+1),100)
+                        else:
+                                self.SetMapTile((row+1,col+1),108)
+                elif row == self.lvlHeight-1:
                         self.SetMapTile((row,col-1),110)
                         self.SetMapTile((row,col),21)
                         self.SetMapTile((row,col+1),110)
-                        self.SetMapTile((row+1,col-1),108)
-                        self.SetMapTile((row+1,col),0)
-                        self.SetMapTile((row+1,col+1),107)
-                elif col == self.lvlWidth:
+                        self.SetMapTile((row-1,col-1),108)
+                        self.SetMapTile((row-1,col),0)
+                        self.SetMapTile((row-1,col+1),107)
+                elif col == self.lvlWidth-1:
                         self.SetMapTile((row-1,col),112)
                         self.SetMapTile((row,col),21)
                         self.SetMapTile((row+1,col),112)
                         self.SetMapTile((row-1,col-1),105)
                         self.SetMapTile((row,col-1),0)
-                        self.SetMapTile((row+1,col-1),107)
+                        if self.GetMapTile((row+1,col-1)) != 101:
+                                self.SetMapTile((row+1,col-1),100)
+                        else:
+                                self.SetMapTile((row+1,col-1),107)
 
         def IsWall (self, (row, col)):
                 if row > thisLevel.lvlHeight - 1 or row < 0:
@@ -369,7 +375,7 @@ class level ():
                                 for k in range(0, len(str_splitBySpace), 1):
                                         if (str_splitBySpace[k] == "?"):
                                                 if (thisGame.selector == 0):
-                                                        if (randint(0,1) == 0):
+                                                        if (randint(0,8) == 0):
                                                                 fout.write("2")
                                                         else:
                                                                 fout.write("0")
