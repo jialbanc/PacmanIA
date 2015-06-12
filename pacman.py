@@ -234,7 +234,7 @@ class level ():
                         self.SetMapTile((row+1,col),111)
                         self.SetMapTile((row-1,col+1),106)
                         self.SetMapTile((row,col+1),0)
-                        if self.GetMapTile(row+1,col+1)!=101:
+                        if self.GetMapTile((row+1,col+1)) != 101:
                                 self.SetMapTile((row+1,col+1),100)
                         else:
                                 self.SetMapTile((row+1,col+1),108)
