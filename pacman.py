@@ -1,6 +1,7 @@
 import pygame, sys, os, random
 from pygame.locals import *
 from random import randint
+import os
 
 #Ruta de la carpeta donde se encuentra el script.
 SCRIPT_PATH=sys.path[0]
@@ -39,7 +40,9 @@ class game ():
                 # 4 = wait after finishing level
                 self.mode = 0
                 self.modeTimer = 0
-                self.selector = 0
+                self.select = 0
+                self.galletas = 0
+                self.puerta = 0
 
                 #Seteamos game over como primer estado.
                 self.SetMode( 2 )
@@ -53,8 +56,10 @@ class game ():
                 self.screenTileSize = (23, 21)
                 self.screenSize = (self.screenTileSize[1] * TILE_WIDTH, self.screenTileSize[0] * TILE_HEIGHT)
                 self.imLogo = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","logo.gif")).convert()
-                self.imgSelector = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","selector.gif")).convert()
                 self.imgMenu = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","menu.gif")).convert()
+                self.imgSelect = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","select.gif")).convert()
+                self.imgCheckGalletas = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","check.gif")).convert()
+                self.imgCheckPuerta = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","check.gif")).convert()
 
         def StartNewGame (self):
                 self.levelNum = 1
@@ -358,11 +363,25 @@ class level ():
                                         # if this isn't a blank tile
                                         if useTile == tileID['showlogo']:
                                                 screen.blit (thisGame.imLogo, (col * TILE_WIDTH - thisGame.screenPixelOffset[0], row * TILE_HEIGHT - thisGame.screenPixelOffset[1]) )
-                                                if (thisGame.selector == 0):
-                                                        screen.blit (thisGame.imgSelector, (thisGame.screenSize[0] / 2 - (thisGame.imgSelector.get_width()/2) - (thisGame.imgMenu.get_width()/2), thisGame.screenSize[1] / 2 - (thisGame.imgSelector.get_height()/2) - 15) )
+                                                screen.blit (thisGame.imgMenu, ((thisGame.screenSize[0] / 2 - (thisGame.imgMenu.get_width()/2)), thisGame.screenSize[1] / 2 - (thisGame.imgMenu.get_height()/2)) )
+                                                if (thisGame.select == 0):
+                                                        screen.blit (thisGame.imgSelect, (thisGame.screenSize[0] / 2 - (thisGame.imgSelect.get_width()/2) - 85 , (thisGame.screenSize[1] / 2 - (thisGame.imgSelect.get_height()/2)) - (thisGame.imgMenu.get_height()/2) + 18) )
+                                                elif (thisGame.select == 1):
+                                                        screen.blit (thisGame.imgSelect, (thisGame.screenSize[0] / 2 - (thisGame.imgSelect.get_width()/2) - 85 , (thisGame.screenSize[1] / 2 - (thisGame.imgSelect.get_height()/2)) - 11) )
+                                                elif (thisGame.select == 2):
+                                                        screen.blit (thisGame.imgSelect, (thisGame.screenSize[0] / 2 - (thisGame.imgSelect.get_width()/2) - 85 , (thisGame.screenSize[1] / 2 - (thisGame.imgSelect.get_height()/2)) + 25) )
+                                                elif (thisGame.select == 3):
+                                                        screen.blit (thisGame.imgSelect, (thisGame.screenSize[0] / 2 - (thisGame.imgSelect.get_width()/2) - 85 , (thisGame.screenSize[1] / 2 - (thisGame.imgSelect.get_height()/2)) + (thisGame.imgMenu.get_height()/2) - 57) )
+                                                elif (thisGame.select == 4):
+                                                        screen.blit (thisGame.imgSelect, (thisGame.screenSize[0] / 2 - (thisGame.imgSelect.get_width()/2) - 85 , (thisGame.screenSize[1] / 2 - (thisGame.imgSelect.get_height()/2)) + (thisGame.imgMenu.get_height()/2) - 18) )
+                                                if (thisGame.galletas == 0):
+                                                        screen.blit (thisGame.imgCheckGalletas, (thisGame.screenSize[0] / 2 - (thisGame.imgCheckGalletas.get_width()/2) - 55 , (thisGame.screenSize[1] / 2 - (thisGame.imgCheckGalletas.get_height()/2)) - 11) )
                                                 else:
-                                                        screen.blit (thisGame.imgSelector, (thisGame.screenSize[0] / 2 - (thisGame.imgSelector.get_width()/2) - (thisGame.imgMenu.get_width()/2), thisGame.screenSize[1] / 2 - (thisGame.imgSelector.get_height()/2) + 15) )
-                                                screen.blit (thisGame.imgMenu, ((thisGame.screenSize[0] / 2 - (thisGame.imgMenu.get_width()/2)) + (thisGame.imgSelector.get_width()/2), thisGame.screenSize[1] / 2 - (thisGame.imgMenu.get_height()/2)) )
+                                                        screen.blit (thisGame.imgCheckGalletas, (thisGame.screenSize[0] / 2 - (thisGame.imgCheckGalletas.get_width()/2) - 55 , (thisGame.screenSize[1] / 2 - (thisGame.imgCheckGalletas.get_height()/2)) + 25) )
+                                                if (thisGame.puerta == 0):
+                                                        screen.blit (thisGame.imgCheckPuerta, (thisGame.screenSize[0] / 2 - (thisGame.imgCheckPuerta.get_width()/2) - 55 , (thisGame.screenSize[1] / 2 - (thisGame.imgCheckPuerta.get_height()/2)) + (thisGame.imgMenu.get_height()/2) - 57) )
+                                                else:
+                                                        screen.blit (thisGame.imgCheckPuerta, (thisGame.screenSize[0] / 2 - (thisGame.imgCheckPuerta.get_width()/2) - 55 , (thisGame.screenSize[1] / 2 - (thisGame.imgCheckPuerta.get_height()/2)) + (thisGame.imgMenu.get_height()/2) - 18) )
                                         else:
                                                 screen.blit (tileIDImage[ useTile ], (col * TILE_WIDTH - thisGame.screenPixelOffset[0], row * TILE_HEIGHT - thisGame.screenPixelOffset[1]) )
 
@@ -374,7 +393,7 @@ class level ():
                                 str_splitBySpace = line.split(' ')
                                 for k in range(0, len(str_splitBySpace), 1):
                                         if (str_splitBySpace[k] == "?"):
-                                                if (thisGame.selector == 0):
+                                                if (thisGame.galletas == 0):
                                                         if (randint(0,8) == 0):
                                                                 fout.write("2")
                                                         else:
@@ -506,14 +525,22 @@ def CheckInputs():
                                 player.velY = -player.speed
         elif thisGame.mode == 2:
                 if pygame.key.get_pressed()[ pygame.K_RETURN ]:
-                        thisGame.StartNewGame()
+                        if (thisGame.select == 0):
+                                thisGame.StartNewGame()
+                        elif (thisGame.select == 1):
+                                thisGame.galletas = 0
+                        elif (thisGame.select == 2):
+                                thisGame.galletas = 1
+                        elif (thisGame.select == 3):
+                                thisGame.puerta = 0
+                        elif (thisGame.select == 4):
+                                thisGame.puerta = 1
                 elif pygame.key.get_pressed()[ pygame.K_UP ]:
-                        thisGame.selector = 0
-                        screen.blit (thisGame.imgSelector, (thisGame.screenSize[0] / 2 - (thisGame.imgSelector.get_width()/2) - (thisGame.imgMenu.get_width()/2), thisGame.screenSize[1] / 2 - (thisGame.imgSelector.get_height()/2) - 15) )
+                        if (thisGame.select != 0):
+                                thisGame.select = thisGame.select - 1
                 elif pygame.key.get_pressed()[ pygame.K_DOWN ]:
-                        thisGame.selector = 1
-                        screen.blit (thisGame.imgSelector, (thisGame.screenSize[0] / 2 - (thisGame.imgSelector.get_width()/2) - (thisGame.imgMenu.get_width()/2), thisGame.screenSize[1] / 2 - (thisGame.imgSelector.get_height()/2) + 15) )
-
+                        if (thisGame.select != 4):
+                                thisGame.select = thisGame.select + 1
 
 def GetCrossRef ():
 	f = open(os.path.join(SCRIPT_PATH,"res","crossref.txt"), 'r')
@@ -547,7 +574,7 @@ def GetCrossRef ():
 					if tileIDImage[ thisID ].get_at( (x, y) ) == IMG_EDGE_LIGHT_COLOR:
 						# wall edge
 						tileIDImage[ thisID ].set_at( (x, y), thisLevel.edgeLightColor )
-					elif tileIDImage[ thisID ].get_at( (x, y) ) == IMG_FILL_COLOR:
+					if tileIDImage[ thisID ].get_at( (x, y) ) == IMG_FILL_COLOR:
 						# wall fill
 						tileIDImage[ thisID ].set_at( (x, y), thisLevel.fillColor )
 					elif tileIDImage[ thisID ].get_at( (x, y) ) == IMG_EDGE_SHADOW_COLOR:
@@ -621,4 +648,7 @@ if __name__ == "__main__":
                         thisLevel.DrawMap()
                         player.Draw()
                 pygame.display.flip()
-                clock.tick (60)
+                if (thisGame.mode == 2):
+                        clock.tick (10)
+                else:
+                        clock.tick (60)
