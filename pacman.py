@@ -53,7 +53,7 @@ class game ():
                 self.screenPixelOffset = (0, 0) # offset in pixels of the screen from its nearest-tile position
 
                 #Numero de objetos en vertical y horizontal
-                self.screenTileSize = (23, 21)
+                self.screenTileSize = (25, 21) #23 21
                 self.screenSize = (self.screenTileSize[1] * TILE_WIDTH, self.screenTileSize[0] * TILE_HEIGHT)
                 self.imLogo = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","logo.gif")).convert()
                 self.imgMenu = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","menu.gif")).convert()
@@ -65,7 +65,6 @@ class game ():
                 self.levelNum = 1
                 self.SetMode( 3 )
                 thisLevel.LoadLevel( thisGame.GetLevelNum() )
-
 
         def SmartMoveScreen (self):
 
@@ -237,7 +236,10 @@ class level ():
                         self.SetMapTile((row-1,col),111)
                         self.SetMapTile((row,col),21)
                         self.SetMapTile((row+1,col),111)
-                        self.SetMapTile((row-1,col+1),106)
+                        if self.GetMapTile((row-1,col+1)) != 101:
+                                self.SetMapTile((row-1,col+1),100)
+                        else:
+                                self.SetMapTile((row-1,col+1),106)
                         self.SetMapTile((row,col+1),0)
                         if self.GetMapTile((row+1,col+1)) != 101:
                                 self.SetMapTile((row+1,col+1),100)
@@ -254,7 +256,10 @@ class level ():
                         self.SetMapTile((row-1,col),112)
                         self.SetMapTile((row,col),21)
                         self.SetMapTile((row+1,col),112)
-                        self.SetMapTile((row-1,col-1),105)
+                        if self.GetMapTile((row-1,col-1)) != 101:
+                                self.SetMapTile((row-1,col-1),100)
+                        else:
+                                self.SetMapTile((row-1,col-1),105)
                         self.SetMapTile((row,col-1),0)
                         if self.GetMapTile((row+1,col-1)) != 101:
                                 self.SetMapTile((row+1,col-1),100)
