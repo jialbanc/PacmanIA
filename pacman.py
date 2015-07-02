@@ -29,6 +29,8 @@ img_Background = pygame.image.load(os.path.join(SCRIPT_PATH,"res","backgrounds",
 snd_pellet = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","pellet1.wav"))
 snd_tada = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","tada.wav"))
 
+Font = pygame.font.Font(os.path.join(SCRIPT_PATH,"res","font.ttf"),28)
+
 class game ():
 
         def __init__ (self):
@@ -509,6 +511,43 @@ class level ():
                 player.anim_pacmanCurrent = player.anim_pacmanS
                 player.animFrame = 3
 
+class timer ():
+        def __init__ (self):
+            self.levelNum = 0
+            self.screenTileSize = (25, 21)
+            self.screenSize = (self.screenTileSize[1] * TILE_WIDTH, self.screenTileSize[0] * TILE_HEIGHT)
+            self.test = Font.render("0",True,(255,0,0))
+            self.width = self.test.get_width()
+            self.height = self.test.get_height()
+            self.totalwidth = 12 * self.width
+            self.Time = [0,0,0]
+
+
+        def Update(self):
+            self.Time[2] += 1
+            if self.Time[2] > 99:
+                self.Time[2] = 0
+                self.Time[1] += 1
+                if self.Time[1] > 59:
+                    self.Time[1] = 0
+                    self.Time[0] += 1
+                    if self.Time[0] > 99:
+                        self.Time = [0,0,0]
+        def Draw(self):
+            t1 = str(self.Time[0])
+            if len(t1) == 1: t1 = "0"+t1
+            t2 = str(self.Time[1])
+            if len(t2) == 1: t2 = "0"+t2
+            t3 = str(self.Time[2])
+            if len(t3) == 1: t3 = "0"+t3
+            string = "Time:"+t1+":"+t2+":"+t3
+            start_pos = (self.screenSize[0]/2)-(self.totalwidth/2)
+            for character in string:
+                pos = [start_pos+int(round((51.0/99.0)*self.width)),0]
+                screen.blit(Font.render(character,True,(255,255,0)),pos)
+                start_pos += self.width
+
+
 def CheckIfCloseButton(events):
     for event in events:
             if event.type == QUIT:
@@ -533,6 +572,9 @@ def CheckInputs():
                         if not (player.velX == 0 and player.velY == -player.speed) and not thisLevel.CheckIfHitWall((player.x, player.y - player.speed), (player.nearestRow, player.nearestCol)):
                                 player.velX = 0
                                 player.velY = -player.speed
+                elif pygame.key.get_pressed()[ pygame.K_ESCAPE ]:
+                                                pygame.quit()
+                                                sys.exit()
         elif thisGame.mode == 2:
                 if pygame.key.get_pressed()[ pygame.K_RETURN ]:
                         if (thisGame.select == 0):
@@ -551,6 +593,9 @@ def CheckInputs():
                 elif pygame.key.get_pressed()[ pygame.K_DOWN ]:
                         if (thisGame.select != 4):
                                 thisGame.select = thisGame.select + 1
+                elif pygame.key.get_pressed()[ pygame.K_ESCAPE ]:
+                                                pygame.quit()
+                                                sys.exit()
 
 def GetCrossRef ():
 	f = open(os.path.join(SCRIPT_PATH,"res","crossref.txt"), 'r')
@@ -596,7 +641,6 @@ def GetCrossRef ():
 			# print str_splitBySpace[0] + " is married to " + str_splitBySpace[1]
 		lineNum += 1
 
-
 #      __________________
 # ___/  main code block  \_____________________________________________________
 
@@ -610,6 +654,7 @@ if __name__ == "__main__":
         # create game and level objects and load first level
         thisGame = game()
         thisLevel = level()
+        thisTimer = timer()
         #Podemos setear el nivel que queramos si modificamos este parametro Ej:
         #thisLevel.LoadLevel( 2 )
         thisLevel.LoadLevel( thisGame.GetLevelNum() )
@@ -631,6 +676,8 @@ if __name__ == "__main__":
                         if thisGame.modeTimer == 90:
                                 thisGame.SetMode( 1 )
                                 player.velX = player.speed
+                        thisTimer.Time = [0,0,0]
+
                 elif thisGame.mode == 4:
                         # pause after eating all the pellets
                         thisGame.modeTimer += 1
@@ -654,9 +701,11 @@ if __name__ == "__main__":
                             thisGame.SetNextLevel()
                 thisGame.SmartMoveScreen()
                 screen.blit(img_Background, (0, 0))
+                thisTimer.Update()
                 if not thisGame.mode == 6:
-                        thisLevel.DrawMap()
-                        player.Draw()
+                    thisLevel.DrawMap()
+                    player.Draw()
+                    thisTimer.Draw()
                 pygame.display.flip()
                 if (thisGame.mode == 2):
                         clock.tick (10)
