@@ -181,6 +181,7 @@ class level ():
                 self.pelletColor = (255, 255, 255, 255)
                 self.map = {}
                 self.pellets = 0
+                self.puertaFijaPos = (3, 0)
 
         def SetMapTile (self, (row, col), newValue):
                 self.map[ (row * self.lvlWidth) + col ] = newValue
@@ -312,7 +313,11 @@ class level ():
                                                 if thisLevel.pellets == 0:
                                                         # no more pellets left!
                                                         # show exit door
-                                                        self.DrawExitDoor(self.FarestPointFromPacman((iRow,iCol)))
+                                                        if thisGame.puerta == 1:
+                                                                self.DrawExitDoor(self.FarestPointFromPacman((iRow,iCol)))
+                                                        if thisGame.puerta == 0:
+                                                                self.DrawExitDoor(self.puertaFijaPos)
+
                                         elif result == tileID[ 'door-h' ]:
                                                 # ran into a horizontal door
                                                 for i in range(0, thisLevel.lvlWidth, 1):
