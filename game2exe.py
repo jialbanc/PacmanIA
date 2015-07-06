@@ -56,7 +56,7 @@ class BuildExe:
         self.icon_file = None
  
         #Extra files/dirs copied to game
-        self.extra_datas = ["res"]
+        self.extra_datas = ["./res"]
  
         #Extra/excludes python modules
         self.extra_modules = []
@@ -71,7 +71,7 @@ class BuildExe:
         self.zipfile_name = None
  
         #Dist directory
-        self.dist_dir ='dist'
+        self.dist_dir ='./dist'
  
     ## Code from DistUtils tutorial at http://wiki.python.org/moin/Distutils/Tutorial
     ## Originally borrowed from wxPython's setup and config files
