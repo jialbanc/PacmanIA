@@ -56,10 +56,6 @@ img_Background = pygame.image.load(os.path.join(SCRIPT_PATH,"res","backgrounds",
 snd_pellet = {}
 snd_pellet[0] = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","pellet1.wav"))
 snd_pellet[1] = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","pellet2.wav"))
-snd_powerpellet = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","powerpellet.wav"))
-snd_eatgh = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","eatgh2.wav"))
-snd_eatfruit = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","eatfruit.wav"))
-snd_extralife = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","extralife.wav"))
 snd_tada = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","tada.wav"))
 Font = pygame.font.Font(os.path.join(SCRIPT_PATH,"res","font.ttf"),28)
 #      ___________________
@@ -69,15 +65,7 @@ class game ():
 
         def __init__ (self):
                 self.levelNum = 0
-                self.lives = 3
-                
-                # game "mode" variable
-                # 1 = normal
-                # 2 = hit ghost
-                # 3 = game over
-                # 4 = wait to start
-                # 5 = wait after eating ghost
-                # 6 = wait after finishing level
+
                 self.mode = 0
                 self.modeTimer = 0
                 self.puerta = 0
@@ -86,12 +74,6 @@ class game ():
                 self.algorithm = 0
                 self.numberPellets = 1
 
-                self.ghostTimer = 0
-                self.ghostValue = 0
-                self.fruitTimer = 0
-                self.fruitScoreTimer = 0
-                self.fruitScorePos = (0, 0)
-                
                 self.SetMode( 2 )
                 
                 # camera variables
@@ -99,14 +81,13 @@ class game ():
                 self.screenNearestTilePos = (0, 0) # nearest-tile position of the screen from the UL corner
                 self.screenPixelOffset = (0, 0) # offset in pixels of the screen from its nearest-tile position
                 
-                self.screenTileSize = (23, 21)
+                self.screenTileSize = (25, 21)
                 self.screenSize = (self.screenTileSize[1] * TILE_WIDTH, self.screenTileSize[0] * TILE_HEIGHT)
                 
                 # numerical display digits
                 self.digit = {}
                 for i in range(0, 10, 1):
                         self.digit[i] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text",str(i) + ".gif")).convert()
-                self.imLife = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","life.gif")).convert()
                 self.imGameOver = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","gameover.gif")).convert()
                 self.imReady = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","ready.gif")).convert()
                 self.imLogo = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","logo.gif")).convert()
@@ -116,36 +97,8 @@ class game ():
 
         def StartNewGame (self):
                 self.levelNum = 1
-                self.score = 0
-                self.lives = 3
-                
                 self.SetMode( 3 )
                 thisLevel.LoadLevel( thisGame.GetLevelNum() )
-                
-        def SmartMoveScreen (self):
-                        
-                possibleScreenX = player.x - self.screenTileSize[1] / 2 * TILE_WIDTH
-                possibleScreenY = player.y - self.screenTileSize[0] / 2 * TILE_HEIGHT
-                
-                if possibleScreenX < 0:
-                        possibleScreenX = 0
-                elif possibleScreenX > thisLevel.lvlWidth * TILE_WIDTH - self.screenSize[0]:
-                        possibleScreenX = thisLevel.lvlWidth * TILE_HEIGHT - self.screenSize[0]
-                        
-                if possibleScreenY < 0:
-                        possibleScreenY = 0
-                elif possibleScreenY > thisLevel.lvlHeight * TILE_WIDTH - self.screenSize[1]:
-                        possibleScreenY = thisLevel.lvlHeight * TILE_HEIGHT - self.screenSize[1]
-                
-                thisGame.MoveScreen( (possibleScreenX, possibleScreenY) )
-                
-        def MoveScreen (self, (newX, newY) ):
-                self.screenPixelPos = (newX, newY)
-                self.screenNearestTilePos = (int(newY / TILE_HEIGHT), int(newX / TILE_WIDTH)) # nearest-tile position of the screen from the UL corner
-                self.screenPixelOffset = (newX - self.screenNearestTilePos[1]*TILE_WIDTH, newY - self.screenNearestTilePos[0]*TILE_HEIGHT)
-                
-        def GetScreenPos (self):
-                return self.screenPixelPos
                 
         def GetLevelNum (self):
                 return self.levelNum
@@ -163,25 +116,19 @@ class game ():
         def SetMode (self, newMode):
                 self.mode = newMode
                 self.modeTimer = 0
-                # print " ***** GAME MODE IS NOW ***** " + str(newMode)
                 
 class node ():
         
         def __init__ (self):
-                self.g = -1 # movement cost to move from previous node to this one (usually +10)
-                self.h = -1 # estimated movement cost to move from this node to the ending node (remaining horizontal and vertical steps * 10)
-                self.f = -1 # total movement cost of this node (= g + h)
-                # parent node - used to trace path back to the starting node at the end
+                self.g = -1
+                self.h = -1
+                self.f = -1
                 self.parent = (-1, -1)
-                # node type - 0 for empty space, 1 for wall (optionally, 2 for starting node and 3 for end)
                 self.type = -1
                 
 class path_finder ():
         
         def __init__ (self):
-                # map is a 1-DIMENSIONAL array.
-                # use the Unfold( (row, col) ) function to convert a 2D coordinate pair
-                # into a 1D index to use with this array.
                 self.map = {}
                 self.size = (-1, -1) # rows by columns
                 
@@ -433,15 +380,12 @@ class pacman ():
 
                 if thisGame.mode == 1:
                         if not self.velX == 0 or not self.velY == 0:
-                                # only Move mouth when pacman is moving
                                 self.animFrame += 1     
                         
                         if self.animFrame == 9:
-                                # wrap to beginning
                                 self.animFrame = 1
                         
         def Move (self):
-                
 
                 self.x += self.velX
                 self.y += self.velY
@@ -449,16 +393,12 @@ class pacman ():
                 self.nearestRow = int(((self.y + (TILE_HEIGHT/2)) / TILE_HEIGHT))
                 self.nearestCol = int(((self.x + (TILE_HEIGHT/2)) / TILE_WIDTH))
                 if not thisLevel.CheckIfHitWall((self.x + self.velX, self.y + self.velY), (self.nearestRow, self.nearestCol)):
-                        # it's ok to Move
                         self.x += self.velX
                         self.y += self.velY
-                        
-                        # check for collisions with other tiles (pellets, etc)
+
                         thisLevel.CheckIfHitSomething((self.x, self.y), (self.nearestRow, self.nearestCol))
                         
                         if (self.x % TILE_WIDTH) == 0 and (self.y % TILE_HEIGHT) == 0:
-                                # if the ghost is lined up with the grid again
-                                # meaning, it's time to go to the next path item
 
                                 if len(self.currentPath) > 0:
                                         self.currentPath = self.currentPath[1:]
@@ -475,10 +415,7 @@ class pacman ():
                                         self.FollowNextPathWay()
 
         def FollowNextPathWay (self):
-                
-                # print "Ghost " + str(self.id) + " rem: " + self.currentPath
-                
-                # only follow this pathway if there is a possible path found!
+
                 if not self.currentPath == False:
                 
                         if len(self.currentPath) > 0:
@@ -662,65 +599,14 @@ class level ():
                                                 thisLevel.pellets -= 1
 
                                                 if thisLevel.pellets == 0:
-                                                        # no more pellets left!
-                                                        # WON THE LEVEL
                                                         thisGame.SetMode( 4 )
                                                         #if thisGame.puerta == 1:
-                                                        #        self.DrawExitDoor(self.FarestPointFromPacman((iRow,iCol)))
+                                                        self.DrawExitDoor(self.FarestPointFromPacman((iRow,iCol)))
                                                         #if thisGame.puerta == 0:
                                                         #        self.DrawExitDoor(self.puertaFijaPos)
              
-                                        elif result == tileID[ 'door-h' ]:
-                                                # ran into a horizontal door
-                                                for i in range(0, thisLevel.lvlWidth, 1):
-                                                        if not i == iCol:
-                                                                if thisLevel.GetMapTile((iRow, i)) == tileID[ 'door-h' ]:
-                                                                        player.x = i * TILE_WIDTH
-                                                                        
-                                                                        if player.velX > 0:
-                                                                                player.x += TILE_WIDTH
-                                                                        else:
-                                                                                player.x -= TILE_WIDTH
-                                                                                
-                                        #elif result == tileID[ 'door-v' ]:
-                                                # If he gets to exit door WIN!
-                                                #thisGame.SetMode( 4 )
 
-        def GetPathwayPairPos (self):
-                
-                doorArray = []
-                
-                for row in range(0, self.lvlHeight, 1):
-                        for col in range(0, self.lvlWidth, 1):
-                                if self.GetMapTile((row, col)) == tileID[ 'door-h' ]:
-                                        # found a horizontal door
-                                        doorArray.append( (row, col) )
-                                elif self.GetMapTile((row, col)) == tileID[ 'door-v' ]:
-                                        # found a vertical door
-                                        doorArray.append( (row, col) )
-                
-                if len(doorArray) == 0:
-                        return False
-                
-                chosenDoor = random.randint(0, len(doorArray) - 1)
-                
-                if self.GetMapTile( doorArray[chosenDoor] ) == tileID[ 'door-h' ]:
-                        # horizontal door was chosen
-                        # look for the opposite one
-                        for i in range(0, thisLevel.lvlWidth, 1):
-                                if not i == doorArray[chosenDoor][1]:
-                                        if thisLevel.GetMapTile((doorArray[chosenDoor][0], i)) == tileID[ 'door-h' ]:
-                                                return doorArray[chosenDoor], (doorArray[chosenDoor][0], i)
-                else:
-                        # vertical door was chosen
-                        # look for the opposite one
-                        for i in range(0, thisLevel.lvlHeight, 1):
-                                if not i == doorArray[chosenDoor][0]:
-                                        if thisLevel.GetMapTile((i, doorArray[chosenDoor][1])) == tileID[ 'door-v' ]:
-                                                return doorArray[chosenDoor], (i, doorArray[chosenDoor][1])
-                                        
-                return False
-                
+
         def PrintMap (self):
                 
                 for row in range(0, self.lvlHeight, 1):
@@ -935,7 +821,6 @@ class level ():
                         randRow = random.randint(1, self.lvlHeight - 2)
                         randCol = random.randint(1, self.lvlWidth - 2)
 
-                # print "Ghost " + str(i) + " headed towards " + str((randRow, randCol))
                 player.currentPath = path.FindPath( (player.nearestRow, player.nearestCol), (randRow, randCol) )
                 player.FollowNextPathWay()
 
@@ -1103,7 +988,6 @@ while True:
                     thisGame.modeTimer += 1
                     if thisGame.modeTimer == 10:
                             thisGame.SetNextLevel()
-        thisGame.SmartMoveScreen()
         screen.blit(img_Background, (0, 0))
         if not thisGame.mode == 6:
                 thisLevel.DrawMap()
