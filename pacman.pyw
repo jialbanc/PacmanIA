@@ -741,3 +741,376 @@ class level ():
                                 # row containing tile that actually goes here
                                 actualRow = thisGame.screenNearestTilePos[0] + row
                                 actualCol = thisGame.screenNearestTilePos[1] + col
+
+                                useTile = self.GetMapTile((actualRow, actualCol))
+                                if not useTile == 0 and not useTile == tileID['door-h'] and not useTile == tileID['door-v']:
+                                        # if this isn't a blank tile
+
+                                        if useTile == tileID['pellet-power']:
+                                                if self.powerPelletBlinkTimer < 30:
+                                                        screen.blit (tileIDImage[ useTile ], (col * TILE_WIDTH - thisGame.screenPixelOffset[0], row * TILE_HEIGHT - thisGame.screenPixelOffset[1]) )
+
+                                        elif useTile == tileID['showlogo']:
+                                                screen.blit (thisGame.imLogo, (col * TILE_WIDTH - thisGame.screenPixelOffset[0], row * TILE_HEIGHT - thisGame.screenPixelOffset[1]) )
+                                                screen.blit (thisGame.imgMenu, ((thisGame.screenSize[0] / 2 - (thisGame.imgMenu.get_width()/2)), thisGame.screenSize[1] / 2 - (thisGame.imgMenu.get_height()/2)) )
+                                                if (thisGame.select == 0):
+                                                        screen.blit (thisGame.imgSelect, (thisGame.screenSize[0] / 2 - (thisGame.imgSelect.get_width()/2) - 85 , (thisGame.screenSize[1] / 2 - (thisGame.imgSelect.get_height()/2)) - (thisGame.imgMenu.get_height()/2) + 18) )
+                                                elif (thisGame.select == 1):
+                                                        screen.blit (thisGame.imgSelect, (thisGame.screenSize[0] / 2 - (thisGame.imgSelect.get_width()/2) - 85 , (thisGame.screenSize[1] / 2 - (thisGame.imgSelect.get_height()/2)) + (thisGame.imgMenu.get_height()/2) - 57) )
+                                                else:
+                                                        screen.blit (thisGame.imgSelect, (thisGame.screenSize[0] / 2 - (thisGame.imgSelect.get_width()/2) - 85 , (thisGame.screenSize[1] / 2 - (thisGame.imgSelect.get_height()/2)) + (thisGame.imgMenu.get_height()/2) - 18) )
+                                                if (thisGame.algorithm == 0):
+                                                        screen.blit (thisGame.imgCheckAlgorithm, (thisGame.screenSize[0] / 2 - (thisGame.imgCheckAlgorithm.get_width()/2) - 55 , (thisGame.screenSize[1] / 2 - (thisGame.imgCheckAlgorithm.get_height()/2)) + (thisGame.imgMenu.get_height()/2) - 57) )
+                                                else:
+                                                        screen.blit (thisGame.imgCheckAlgorithm, (thisGame.screenSize[0] / 2 - (thisGame.imgCheckAlgorithm.get_width()/2) - 55 , (thisGame.screenSize[1] / 2 - (thisGame.imgCheckAlgorithm.get_height()/2)) + (thisGame.imgMenu.get_height()/2) - 18) )
+
+                                        elif useTile == tileID['hiscores']:
+                                                screen.blit(thisGame.imHiscores,(col*TILE_WIDTH-thisGame.screenPixelOffset[0],row*TILE_HEIGHT-thisGame.screenPixelOffset[1]))
+
+                                        else:
+                                                screen.blit (tileIDImage[ useTile ], (col * TILE_WIDTH - thisGame.screenPixelOffset[0], row * TILE_HEIGHT - thisGame.screenPixelOffset[1]) )
+
+        def ChangeLevel(self, levelNum):
+                if (levelNum != 0):
+                        fin = open(os.path.join(SCRIPT_PATH,"res","levels","Laberinto"+str(levelNum) + ".txt"), 'r')
+                        fout = open(os.path.join(SCRIPT_PATH,"res","levels",str(levelNum) + ".txt"), 'w')
+                        for line in fin:
+                                str_splitBySpace = line.split(' ')
+                                for k in range(0, len(str_splitBySpace), 1):
+                                        if (str_splitBySpace[k] == "?"):
+                                                if (randint(0,8) == 0 and thisGame.numberPellets > 0):
+                                                        fout.write("2")
+                                                        thisGame.numberPellets = thisGame.numberPellets -1
+                                                else:
+                                                        fout.write("0")
+                                        else:
+                                                fout.write(str_splitBySpace[k])
+                                        if (k != len(str_splitBySpace) - 1):
+                                                fout.write(" ")
+                        thisGame.numberPellets = 1
+
+        def LoadLevel (self, levelNum):
+                thisLevel.ChangeLevel( levelNum )
+                self.map = {}
+
+                self.pellets = 0
+
+                f = open(os.path.join(SCRIPT_PATH,"res","levels",str(levelNum) + ".txt"), 'r')
+                lineNum=-1
+                rowNum = 0
+                useLine = False
+                isReadingLevelData = False
+
+                for line in f:
+
+                  lineNum += 1
+
+                        # print " ------- Level Line " + str(lineNum) + " -------- "
+                  while len(line)>0 and (line[-1]=="\n" or line[-1]=="\r"): line=line[:-1]
+                  while len(line)>0 and (line[0]=="\n" or line[0]=="\r"): line=line[1:]
+                  str_splitBySpace = line.split(' ')
+
+
+                  j = str_splitBySpace[0]
+
+                  if (j == "'" or j == ""):
+                                # comment / whitespace line
+                                # print " ignoring comment line.. "
+                                useLine = False
+                  elif j == "#":
+                                # special divider / attribute line
+                                useLine = False
+
+                                firstWord = str_splitBySpace[1]
+
+                                if firstWord == "lvlwidth":
+                                        self.lvlWidth = int( str_splitBySpace[2] )
+                                        # print "Width is " + str( self.lvlWidth )
+
+                                elif firstWord == "lvlheight":
+                                        self.lvlHeight = int( str_splitBySpace[2] )
+                                        # print "Height is " + str( self.lvlHeight )
+
+                                elif firstWord == "edgecolor":
+                                        # edge color keyword for backwards compatibility (single edge color) mazes
+                                        red = int( str_splitBySpace[2] )
+                                        green = int( str_splitBySpace[3] )
+                                        blue = int( str_splitBySpace[4] )
+                                        self.edgeLightColor = (red, green, blue, 255)
+                                        self.edgeShadowColor = (red, green, blue, 255)
+
+                                elif firstWord == "edgelightcolor":
+                                        red = int( str_splitBySpace[2] )
+                                        green = int( str_splitBySpace[3] )
+                                        blue = int( str_splitBySpace[4] )
+                                        self.edgeLightColor = (red, green, blue, 255)
+
+                                elif firstWord == "edgeshadowcolor":
+                                        red = int( str_splitBySpace[2] )
+                                        green = int( str_splitBySpace[3] )
+                                        blue = int( str_splitBySpace[4] )
+                                        self.edgeShadowColor = (red, green, blue, 255)
+
+                                elif firstWord == "fillcolor":
+                                        red = int( str_splitBySpace[2] )
+                                        green = int( str_splitBySpace[3] )
+                                        blue = int( str_splitBySpace[4] )
+                                        self.fillColor = (red, green, blue, 255)
+
+                                elif firstWord == "pelletcolor":
+                                        red = int( str_splitBySpace[2] )
+                                        green = int( str_splitBySpace[3] )
+                                        blue = int( str_splitBySpace[4] )
+                                        self.pelletColor = (red, green, blue, 255)
+
+
+                                elif firstWord == "startleveldata":
+                                        isReadingLevelData = True
+                                        # print "Level data has begun"
+                                        rowNum = 0
+
+                                elif firstWord == "endleveldata":
+                                        isReadingLevelData = False
+                                        # print "Level data has ended"
+
+                  else:
+                                useLine = True
+
+
+                        # this is a map data line
+                  if useLine == True:
+
+                                if isReadingLevelData == True:
+
+                                        # print str( len(str_splitBySpace) ) + " tiles in this column"
+
+                                        for k in range(0, self.lvlWidth, 1):
+                                                self.SetMapTile((rowNum, k), int(str_splitBySpace[k]) )
+
+                                                thisID = int(str_splitBySpace[k])
+                                                if thisID == 4:
+                                                        # starting position for pac-man
+
+                                                        player.homeX = k * TILE_WIDTH
+                                                        player.homeY = rowNum * TILE_HEIGHT
+                                                        self.SetMapTile((rowNum, k), 0 )
+
+                                                elif thisID == 2:
+                                                        # pellet
+
+                                                        self.pellets += 1
+
+                                        rowNum += 1
+
+
+                # reload all tiles and set appropriate colors
+                GetCrossRef()
+
+                # load map into the pathfinder object
+                path.ResizeMap( (self.lvlHeight, self.lvlWidth) )
+
+                for row in range(0, path.size[0], 1):
+                        for col in range(0, path.size[1], 1):
+                                if self.IsWall( (row, col) ):
+                                        path.SetType( (row, col), 1 )
+                                else:
+                                        path.SetType( (row, col), 0 )
+
+                # do all the level-starting stuff
+                self.Restart()
+
+        def Restart (self):
+
+                player.x = player.homeX
+                player.y = player.homeY
+                player.velX = 0
+                player.velY = 0
+                player.Move()
+                player.anim_pacmanCurrent = player.anim_pacmanS
+                player.animFrame = 3
+                # give each ghost a path to a random spot (containing a pellet)
+                (randRow, randCol) = (0, 0)
+
+                while not self.GetMapTile((randRow, randCol)) == tileID[ 'pellet' ] or (randRow, randCol) == (0, 0):
+                        randRow = random.randint(1, self.lvlHeight - 2)
+                        randCol = random.randint(1, self.lvlWidth - 2)
+
+                # print "Ghost " + str(i) + " headed towards " + str((randRow, randCol))
+                player.currentPath = path.FindPath( (player.nearestRow, player.nearestCol), (randRow, randCol) )
+                player.FollowNextPathWay()
+
+
+
+
+
+def CheckIfCloseButton(events):
+        for event in events:
+                if event.type == QUIT:
+                        sys.exit(0)
+
+
+def CheckInputs():
+
+        if thisGame.mode == 2:
+                if pygame.key.get_pressed()[ pygame.K_RETURN ]:
+                        if (thisGame.select == 0):
+                                thisGame.StartNewGame()
+                        elif (thisGame.select == 1):
+                                thisGame.algorithm = 0
+                        else:
+                                thisGame.algorithm = 1
+                elif pygame.key.get_pressed()[ pygame.K_UP ]:
+                        if (thisGame.select != 0):
+                                thisGame.select = thisGame.select - 1
+                elif pygame.key.get_pressed()[ pygame.K_DOWN ]:
+                        if (thisGame.select != 2):
+                                thisGame.select = thisGame.select + 1
+                elif pygame.key.get_pressed()[ pygame.K_ESCAPE ]:
+                                                pygame.quit()
+                                                sys.exit()
+
+
+#      _____________________________________________
+# ___/  function: Get ID-Tilename Cross References  \______________________________________
+
+def GetCrossRef ():
+
+        f = open(os.path.join(SCRIPT_PATH,"res","crossref.txt"), 'r')
+
+        lineNum = 0
+        useLine = False
+
+        for i in f.readlines():
+                # print " ========= Line " + str(lineNum) + " ============ "
+                while len(i)>0 and (i[-1]=='\n' or i[-1]=='\r'): i=i[:-1]
+                while len(i)>0 and (i[0]=='\n' or i[0]=='\r'): i=i[1:]
+                str_splitBySpace = i.split(' ')
+
+                j = str_splitBySpace[0]
+
+                if (j == "'" or j == "" or j == "#"):
+                        # comment / whitespace line
+                        # print " ignoring comment line.. "
+                        useLine = False
+                else:
+                        # print str(wordNum) + ". " + j
+
+                        useLine = True
+
+                if useLine == True:
+                        tileIDName[ int(str_splitBySpace[0]) ] = str_splitBySpace[1]
+                        tileID[ str_splitBySpace[1] ] = int(str_splitBySpace[0])
+
+                        thisID = int(str_splitBySpace[0])
+                        if not thisID in NO_GIF_TILES:
+                                tileIDImage[ thisID ] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","tiles",str_splitBySpace[1] + ".gif")).convert()
+                        else:
+                                tileIDImage[ thisID ] = pygame.Surface((TILE_WIDTH,TILE_HEIGHT))
+
+                        # change colors in tileIDImage to match maze colors
+                        for y in range(0, TILE_WIDTH, 1):
+                                for x in range(0, TILE_HEIGHT, 1):
+
+                                        if tileIDImage[ thisID ].get_at( (x, y) ) == IMG_EDGE_LIGHT_COLOR:
+                                                # wall edge
+                                                tileIDImage[ thisID ].set_at( (x, y), thisLevel.edgeLightColor )
+
+                                        elif tileIDImage[ thisID ].get_at( (x, y) ) == IMG_FILL_COLOR:
+                                                # wall fill
+                                                tileIDImage[ thisID ].set_at( (x, y), thisLevel.fillColor )
+
+                                        elif tileIDImage[ thisID ].get_at( (x, y) ) == IMG_EDGE_SHADOW_COLOR:
+                                                # pellet color
+                                                tileIDImage[ thisID ].set_at( (x, y), thisLevel.edgeShadowColor )
+
+                                        elif tileIDImage[ thisID ].get_at( (x, y) ) == IMG_PELLET_COLOR:
+                                                # pellet color
+                                                tileIDImage[ thisID ].set_at( (x, y), thisLevel.pelletColor )
+
+                        # print str_splitBySpace[0] + " is married to " + str_splitBySpace[1]
+                lineNum += 1
+
+
+#      __________________
+# ___/  main code block  \_____________________________________________________
+
+# create the pacman
+player = pacman()
+
+# create a path_finder object
+path = path_finder()
+
+
+tileIDName = {} # gives tile name (when the ID# is known)
+tileID = {} # gives tile ID (when the name is known)
+tileIDImage = {} # gives tile image (when the ID# is known)
+
+# create game and level objects and load first level
+thisGame = game()
+thisLevel = level()
+thisLevel.LoadLevel( thisGame.GetLevelNum() )
+
+window = pygame.display.set_mode( thisGame.screenSize, pygame.HWSURFACE | pygame.DOUBLEBUF )
+
+while True:
+
+        CheckIfCloseButton( pygame.event.get() )
+
+        if thisGame.mode == 1:
+
+                thisGame.modeTimer += 1
+                player.Move()
+
+        elif thisGame.mode == 2:
+                CheckInputs()
+
+        elif thisGame.mode == 3:
+                # waiting to start
+                thisGame.modeTimer += 1
+
+                if thisGame.modeTimer == 90:
+                        thisGame.SetMode( 1 )
+                        if len(player.currentPath) > 0:
+                                if player.currentPath[0] == "L":
+                                        (player.velX, player.velY) = (-player.speed, 0)
+                                elif player.currentPath[0] == "R":
+                                        (player.velX, player.velY) = (player.speed, 0)
+                                elif player.currentPath[0] == "U":
+                                        (player.velX, player.velY) = (0, -player.speed)
+                                elif player.currentPath[0] == "D":
+                                        (player.velX, player.velY) = (0, player.speed)
+
+        elif thisGame.mode == 4:
+                # pause after eating all the pellets
+                thisGame.modeTimer += 1
+
+                if thisGame.modeTimer == 60:
+                        thisGame.SetMode( 5 )
+                        oldEdgeLightColor = thisLevel.edgeLightColor
+                        oldEdgeShadowColor = thisLevel.edgeShadowColor
+                        oldFillColor = thisLevel.fillColor
+
+        elif thisGame.mode == 5:
+                        # flashing maze after finishing level
+                        thisGame.modeTimer += 1
+                        if thisGame.modeTimer == 1:
+                                pygame.mixer.stop()
+                                snd_tada.play()
+                        elif thisGame.modeTimer == 60:
+                                thisGame.SetMode ( 6 )
+        elif thisGame.mode == 6:
+                    # blank screen before changing levels
+                    thisGame.modeTimer += 1
+                    if thisGame.modeTimer == 10:
+                            thisGame.SetNextLevel()
+        thisGame.SmartMoveScreen()
+        screen.blit(img_Background, (0, 0))
+        if not thisGame.mode == 6:
+                thisLevel.DrawMap()
+                player.Draw()
+        pygame.display.flip()
+        print player.currentPath
+        if (thisGame.mode == 2):
+                clock.tick (10)
+        else:
+                clock.tick (60)
