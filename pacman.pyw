@@ -370,3 +370,374 @@ class path_finder ():
                         return True
                 else:
                         return False
+
+        def SetParent (self, (row, col), (parentRow, parentCol) ):
+                self.map[ self.Unfold((row, col)) ].parent = (parentRow, parentCol)
+
+        def GetParent (self, (row, col) ):
+                return self.map[ self.Unfold((row, col)) ].parent
+                
+        def draw (self):
+                for row in range(0, self.size[0], 1):
+                        for col in range(0, self.size[1], 1):
+                        
+                                thisTile = self.GetType((row, col))
+                                screen.blit (tileIDImage[ thisTile ], (col * (TILE_WIDTH*2), row * (TILE_WIDTH*2)))
+                
+class pacman ():
+        def __init__ (self):
+                self.x = 0
+                self.y = 0
+                self.velX = 0
+                self.velY = 0
+                self.speed = 1
+                
+                self.nearestRow = 0
+                self.nearestCol = 0
+                
+                self.homeX = 0
+                self.homeY = 0
+                self.currentPath = ""
+                
+                self.anim_pacmanL = {}
+                self.anim_pacmanR = {}
+                self.anim_pacmanU = {}
+                self.anim_pacmanD = {}
+                self.anim_pacmanS = {}
+                self.anim_pacmanCurrent = {}
+                
+                for i in range(1, 9, 1):
+                        self.anim_pacmanL[i] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","sprite","pacman-l " + str(i) + ".gif")).convert()
+                        self.anim_pacmanR[i] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","sprite","pacman-r " + str(i) + ".gif")).convert()
+                        self.anim_pacmanU[i] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","sprite","pacman-u " + str(i) + ".gif")).convert()
+                        self.anim_pacmanD[i] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","sprite","pacman-d " + str(i) + ".gif")).convert()
+                        self.anim_pacmanS[i] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","sprite","pacman.gif")).convert()
+                        
+                self.animFrame = 1
+                self.animDelay = 0
+
+        def Draw (self):
+                
+                if thisGame.mode == 2:
+                        return False
+                if self.velX > 0:
+                        self.anim_pacmanCurrent = self.anim_pacmanR
+                elif self.velX < 0:
+                        self.anim_pacmanCurrent = self.anim_pacmanL
+                elif self.velY > 0:
+                        self.anim_pacmanCurrent = self.anim_pacmanD
+                elif self.velY < 0:
+                        self.anim_pacmanCurrent = self.anim_pacmanU
+
+                screen.blit (self.anim_pacmanCurrent[ self.animFrame ], (self.x - thisGame.screenPixelPos[0], self.y - thisGame.screenPixelPos[1]))
+
+                if thisGame.mode == 1:
+                        if not self.velX == 0 or not self.velY == 0:
+                                # only Move mouth when pacman is moving
+                                self.animFrame += 1     
+                        
+                        if self.animFrame == 9:
+                                # wrap to beginning
+                                self.animFrame = 1
+                        
+        def Move (self):
+                
+
+                self.x += self.velX
+                self.y += self.velY
+                
+                self.nearestRow = int(((self.y + (TILE_HEIGHT/2)) / TILE_HEIGHT))
+                self.nearestCol = int(((self.x + (TILE_HEIGHT/2)) / TILE_WIDTH))
+                if not thisLevel.CheckIfHitWall((self.x + self.velX, self.y + self.velY), (self.nearestRow, self.nearestCol)):
+                        # it's ok to Move
+                        self.x += self.velX
+                        self.y += self.velY
+                        
+                        # check for collisions with other tiles (pellets, etc)
+                        thisLevel.CheckIfHitSomething((self.x, self.y), (self.nearestRow, self.nearestCol))
+                        
+                        if (self.x % TILE_WIDTH) == 0 and (self.y % TILE_HEIGHT) == 0:
+                                # if the ghost is lined up with the grid again
+                                # meaning, it's time to go to the next path item
+
+                                if len(self.currentPath) > 0:
+                                        self.currentPath = self.currentPath[1:]
+                                        self.FollowNextPathWay()
+
+                                else:
+                                        self.x = self.nearestCol * TILE_WIDTH
+                                        self.y = self.nearestRow * TILE_HEIGHT
+                                        (randRow,randCol) = (0,0)
+                                        while not thisLevel.GetMapTile((randRow, randCol)) == tileID[ 'pellet' ] or (randRow, randCol) == (0, 0):
+                                                randRow = random.randint(1, thisLevel.lvlHeight - 2)
+                                                randCol = random.randint(1, thisLevel.lvlWidth - 2)
+                                        self.currentPath = path.FindPath( (self.nearestRow, self.nearestCol), (randRow, randCol) )
+                                        self.FollowNextPathWay()
+
+        def FollowNextPathWay (self):
+                
+                # print "Ghost " + str(self.id) + " rem: " + self.currentPath
+                
+                # only follow this pathway if there is a possible path found!
+                if not self.currentPath == False:
+                
+                        if len(self.currentPath) > 0:
+                                if self.currentPath[0] == "L":
+                                        (self.velX, self.velY) = (-self.speed, 0)
+                                elif self.currentPath[0] == "R":
+                                        (self.velX, self.velY) = (self.speed, 0)
+                                elif self.currentPath[0] == "U":
+                                        (self.velX, self.velY) = (0, -self.speed)
+                                elif self.currentPath[0] == "D":
+                                        (self.velX, self.velY) = (0, self.speed)
+                                        
+                        else:
+                            (randRow, randCol) = (0, 0)
+
+                            while not thisLevel.GetMapTile((randRow, randCol)) == tileID[ 'pellet' ] or (randRow, randCol) == (0, 0):
+                                    randRow = random.randint(1, thisLevel.lvlHeight - 2)
+                                    randCol = random.randint(1, thisLevel.lvlWidth - 2)
+
+                            self.currentPath = path.FindPath( (self.nearestRow, self.nearestCol), (randRow, randCol) )
+                            self.FollowNextPathWay()
+
+                        
+class level ():
+        
+        def __init__ (self):
+                self.lvlWidth = 0
+                self.lvlHeight = 0
+                self.edgeLightColor = (255, 255, 0, 255)
+                self.edgeShadowColor = (255, 150, 0, 255)
+                self.fillColor = (0, 255, 255, 255)
+                self.pelletColor = (255, 255, 255, 255)
+                self.map = {}
+                self.pellets = 0
+                self.puertaFijaPos = (3, 0)
+                
+        def SetMapTile (self, (row, col), newValue):
+                self.map[ (row * self.lvlWidth) + col ] = newValue
+                
+        def GetMapTile (self, (row, col)):
+                if row >= 0 and row < self.lvlHeight and col >= 0 and col < self.lvlWidth:
+                        return self.map[ (row * self.lvlWidth) + col ]
+                else:
+                        return 0
+
+        def FarestPointFromPacman(self,(row,col)):
+                dp1=(self.lvlHeight-3)
+                dp2=(self.lvlWidth-6)
+                if self.lvlHeight-row > row:
+                        if self.lvlWidth-col > col:
+                                h1=(((dp1-row)**2)+((self.lvlWidth-col)**2))**0.5
+                                h2=(((dp2-col)**2)+((self.lvlHeight-row)**2))**0.5
+                                if h1 > h2:
+                                        return dp1, self.lvlWidth-1
+                                else:
+                                        return self.lvlHeight-1, dp2
+                        else:
+                                h1=(((dp1-row)**2)+(col**2))**0.5
+                                h2=(((col-6)**2)+((self.lvlHeight-row)**2))**0.5
+                                if h1 > h2:
+                                        return dp1, 0
+                                else:
+                                        return self.lvlHeight-1, 6
+                else:
+                        if self.lvlWidth-col > col:
+                                h1=(((dp2-col)**2)+(row**2))**0.5
+                                h2=(((row-3)**2)+((self.lvlWidth-col)**2))**0.5
+                                if h1 > h2:
+                                        return 0, dp2
+                                else:
+                                        return 3, self.lvlWidth-1
+                        else:
+                                h1=(((col-6)**2)+((self.lvlHeight-row)**2))**0.5
+                                h2=(((row-3)**2)+((self.lvlWidth-col)**2))**0.5
+                                if h1 > h2:
+                                        return 0, 6
+                                else:
+                                        return 3, 0
+
+        def DrawExitDoor(self, (row,col)):
+                if row == 0:
+                        self.SetMapTile((row,col-1),113)
+                        self.SetMapTile((row,col),21)
+                        self.SetMapTile((row,col+1),113)
+                        self.SetMapTile((row+1,col-1),106)
+                        self.SetMapTile((row+1,col),0)
+                        self.SetMapTile((row+1,col+1),105)
+                elif col == 0:
+                        self.SetMapTile((row-1,col),111)
+                        self.SetMapTile((row,col),21)
+                        self.SetMapTile((row+1,col),111)
+                        if self.GetMapTile((row-1,col+1)) != 101:
+                                self.SetMapTile((row-1,col+1),100)
+                        else:
+                                self.SetMapTile((row-1,col+1),106)
+                        self.SetMapTile((row,col+1),0)
+                        if self.GetMapTile((row+1,col+1)) != 101:
+                                self.SetMapTile((row+1,col+1),100)
+                        else:
+                                self.SetMapTile((row+1,col+1),108)
+                elif row == self.lvlHeight-1:
+                        self.SetMapTile((row,col-1),110)
+                        self.SetMapTile((row,col),21)
+                        self.SetMapTile((row,col+1),110)
+                        self.SetMapTile((row-1,col-1),108)
+                        self.SetMapTile((row-1,col),0)
+                        self.SetMapTile((row-1,col+1),107)
+                elif col == self.lvlWidth-1:
+                        self.SetMapTile((row-1,col),112)
+                        self.SetMapTile((row,col),21)
+                        self.SetMapTile((row+1,col),112)
+                        if self.GetMapTile((row-1,col-1)) != 101:
+                                self.SetMapTile((row-1,col-1),100)
+                        else:
+                                self.SetMapTile((row-1,col-1),105)
+                        self.SetMapTile((row,col-1),0)
+                        if self.GetMapTile((row+1,col-1)) != 101:
+                                self.SetMapTile((row+1,col-1),100)
+                        else:
+                                self.SetMapTile((row+1,col-1),107)
+
+        def IsWall (self, (row, col)):
+        
+                if row > thisLevel.lvlHeight - 1 or row < 0:
+                        return True
+                
+                if col > thisLevel.lvlWidth - 1 or col < 0:
+                        return True
+        
+                # check the offending tile ID
+                result = thisLevel.GetMapTile((row, col))
+
+                # if the tile was a wall
+                if result >= 100 and result <= 199:
+                        return True
+                else:
+                        return False
+        
+                                        
+        def CheckIfHitWall (self, (possiblePlayerX, possiblePlayerY), (row, col)):
+        
+                numCollisions = 0
+                
+                # check each of the 9 surrounding tiles for a collision
+                for iRow in range(row - 1, row + 2, 1):
+                        for iCol in range(col - 1, col + 2, 1):
+                        
+                                if  (possiblePlayerX - (iCol * TILE_WIDTH) < TILE_WIDTH) and (possiblePlayerX - (iCol * TILE_WIDTH) > -TILE_WIDTH) and (possiblePlayerY - (iRow * TILE_HEIGHT) < TILE_HEIGHT) and (possiblePlayerY - (iRow * TILE_HEIGHT) > -TILE_HEIGHT):
+                                        
+                                        if self.IsWall((iRow, iCol)):
+                                                numCollisions += 1
+                                                
+                if numCollisions > 0:
+                        return True
+                else:
+                        return False
+                
+                
+        def CheckIfHit (self, (playerX, playerY), (x, y), cushion):
+        
+                if (playerX - x < cushion) and (playerX - x > -cushion) and (playerY - y < cushion) and (playerY - y > -cushion):
+                        return True
+                else:
+                        return False
+
+
+        def CheckIfHitSomething (self, (playerX, playerY), (row, col)):
+        
+                for iRow in range(row - 1, row + 2, 1):
+                        for iCol in range(col - 1, col + 2, 1):
+                        
+                                if  (playerX - (iCol * TILE_WIDTH) < TILE_WIDTH) and (playerX - (iCol * TILE_WIDTH) > -TILE_WIDTH) and (playerY - (iRow * TILE_HEIGHT) < TILE_HEIGHT) and (playerY - (iRow * TILE_HEIGHT) > -TILE_HEIGHT):
+                                        # check the offending tile ID
+                                        result = thisLevel.GetMapTile((iRow, iCol))
+                
+                                        if result == tileID[ 'pellet' ]:
+                                                # got a pellet
+                                                thisLevel.SetMapTile((iRow, iCol), 0)
+                                                snd_pellet[0].play()
+                                               
+                                                thisLevel.pellets -= 1
+
+                                                if thisLevel.pellets == 0:
+                                                        # no more pellets left!
+                                                        # WON THE LEVEL
+                                                        thisGame.SetMode( 4 )
+                                                        #if thisGame.puerta == 1:
+                                                        #        self.DrawExitDoor(self.FarestPointFromPacman((iRow,iCol)))
+                                                        #if thisGame.puerta == 0:
+                                                        #        self.DrawExitDoor(self.puertaFijaPos)
+             
+                                        elif result == tileID[ 'door-h' ]:
+                                                # ran into a horizontal door
+                                                for i in range(0, thisLevel.lvlWidth, 1):
+                                                        if not i == iCol:
+                                                                if thisLevel.GetMapTile((iRow, i)) == tileID[ 'door-h' ]:
+                                                                        player.x = i * TILE_WIDTH
+                                                                        
+                                                                        if player.velX > 0:
+                                                                                player.x += TILE_WIDTH
+                                                                        else:
+                                                                                player.x -= TILE_WIDTH
+                                                                                
+                                        #elif result == tileID[ 'door-v' ]:
+                                                # If he gets to exit door WIN!
+                                                #thisGame.SetMode( 4 )
+
+        def GetPathwayPairPos (self):
+                
+                doorArray = []
+                
+                for row in range(0, self.lvlHeight, 1):
+                        for col in range(0, self.lvlWidth, 1):
+                                if self.GetMapTile((row, col)) == tileID[ 'door-h' ]:
+                                        # found a horizontal door
+                                        doorArray.append( (row, col) )
+                                elif self.GetMapTile((row, col)) == tileID[ 'door-v' ]:
+                                        # found a vertical door
+                                        doorArray.append( (row, col) )
+                
+                if len(doorArray) == 0:
+                        return False
+                
+                chosenDoor = random.randint(0, len(doorArray) - 1)
+                
+                if self.GetMapTile( doorArray[chosenDoor] ) == tileID[ 'door-h' ]:
+                        # horizontal door was chosen
+                        # look for the opposite one
+                        for i in range(0, thisLevel.lvlWidth, 1):
+                                if not i == doorArray[chosenDoor][1]:
+                                        if thisLevel.GetMapTile((doorArray[chosenDoor][0], i)) == tileID[ 'door-h' ]:
+                                                return doorArray[chosenDoor], (doorArray[chosenDoor][0], i)
+                else:
+                        # vertical door was chosen
+                        # look for the opposite one
+                        for i in range(0, thisLevel.lvlHeight, 1):
+                                if not i == doorArray[chosenDoor][0]:
+                                        if thisLevel.GetMapTile((i, doorArray[chosenDoor][1])) == tileID[ 'door-v' ]:
+                                                return doorArray[chosenDoor], (i, doorArray[chosenDoor][1])
+                                        
+                return False
+                
+        def PrintMap (self):
+                
+                for row in range(0, self.lvlHeight, 1):
+                        outputLine = ""
+                        for col in range(0, self.lvlWidth, 1):
+                        
+                                outputLine += str( self.GetMapTile((row, col)) ) + ", "
+                                
+                        # print outputLine
+                        
+        def DrawMap (self):
+
+
+                for row in range(-1, thisGame.screenTileSize[0] +1, 1):
+                        outputLine = ""
+                        for col in range(-1, thisGame.screenTileSize[1] +1, 1):
+
+                                # row containing tile that actually goes here
+                                actualRow = thisGame.screenNearestTilePos[0] + row
+                                actualCol = thisGame.screenNearestTilePos[1] + col
