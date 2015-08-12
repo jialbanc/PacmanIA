@@ -56,8 +56,7 @@ snd_pellet[0] = pygame.mixer.Sound(os.path.join(SCRIPT_PATH, "res", "sounds", "p
 snd_pellet[1] = pygame.mixer.Sound(os.path.join(SCRIPT_PATH, "res", "sounds", "pellet2.wav"))
 snd_tada = pygame.mixer.Sound(os.path.join(SCRIPT_PATH, "res", "sounds", "tada.wav"))
 Font = pygame.font.Font(os.path.join(SCRIPT_PATH, "res", "font.ttf"), 28)
-# ___________________
-# ___/  class definitions  \_______________________________________________
+
 
 class game():
         def __init__(self):
