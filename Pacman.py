@@ -675,21 +675,22 @@ class level():
 
         def ChangeLevel(self, levelNum):
                 if (levelNum != 0):
-                        fin = open(os.path.join(SCRIPT_PATH, "res", "levels", "Laberinto" + str(levelNum) + ".txt"), 'r')
-                        fout = open(os.path.join(SCRIPT_PATH, "res", "levels", str(levelNum) + ".txt"), 'w')
-                        for line in fin:
-                                str_splitBySpace = line.split(' ')
-                                for k in range(0, len(str_splitBySpace), 1):
-                                        if (str_splitBySpace[k] == "?"):
-                                                if (randint(0, 10) == 0 and thisGame.numberPellets > 0):
-                                                        fout.write("3")
-                                                        thisGame.numberPellets = thisGame.numberPellets - 1
+                        while (thisGame.numberPellets > 0):
+                                fin = open(os.path.join(SCRIPT_PATH, "res", "levels", "Laberinto" + str(levelNum) + ".txt"), 'r')
+                                fout = open(os.path.join(SCRIPT_PATH, "res", "levels", str(levelNum) + ".txt"), 'w')
+                                for line in fin:
+                                        str_splitBySpace = line.split(' ')
+                                        for k in range(0, len(str_splitBySpace), 1):
+                                                if (str_splitBySpace[k] == "?"):
+                                                        if (randint(0, 200) == 100 and thisGame.numberPellets > 0):
+                                                                fout.write("3")
+                                                                thisGame.numberPellets = thisGame.numberPellets - 1
+                                                        else:
+                                                                fout.write("0")
                                                 else:
-                                                        fout.write("0")
-                                        else:
-                                                fout.write(str_splitBySpace[k])
-                                        if (k != len(str_splitBySpace) - 1):
-                                                fout.write(" ")
+                                                        fout.write(str_splitBySpace[k])
+                                                if (k != len(str_splitBySpace) - 1):
+                                                        fout.write(" ")
                         thisGame.numberPellets = 1
 
         def LoadLevel(self, levelNum):
