@@ -210,6 +210,7 @@ class path_finder():
                                                         self.CalcH(thisNeighbor)
                                                         self.CalcF(thisNeighbor)
                                                         self.SetParent(thisNeighbor, self.current)
+
                         else:
                                 doContinue = False
 
@@ -231,6 +232,7 @@ class path_finder():
                                 self.pathChainRev += 'U'
                         self.current = self.GetParent(self.current)
                         self.SetType(self.current, 4)
+                        thisLevel.SetMapTile((self.current[0], self.current[1]), 2)
 
                 # because pathChainRev was constructed in reverse order, it needs to be reversed!
                 for i in range(len(self.pathChainRev) - 1, -1, -1):
@@ -590,7 +592,7 @@ class level():
                                         # check the offending tile ID
                                         result = thisLevel.GetMapTile((iRow, iCol))
 
-                                        if result == tileID['pellet']:
+                                        if result == tileID['pellet-power']:
                                                 # got a pellet
                                                 thisLevel.SetMapTile((iRow, iCol), 0)
                                                 snd_pellet[0].play()
@@ -625,8 +627,7 @@ class level():
                                         # if this isn't a blank tile
 
                                         if useTile == tileID['pellet-power']:
-                                                if self.powerPelletBlinkTimer < 30:
-                                                        screen.blit(tileIDImage[useTile], (col * TILE_WIDTH - thisGame.screenPixelOffset[0],
+                                                screen.blit(tileIDImage[useTile], (col * TILE_WIDTH - thisGame.screenPixelOffset[0],
                                                                                            row * TILE_HEIGHT - thisGame.screenPixelOffset[1]))
 
                                         elif useTile == tileID['showlogo']:
@@ -669,7 +670,7 @@ class level():
                                                 screen.blit(tileIDImage[useTile], (col * TILE_WIDTH - thisGame.screenPixelOffset[0],
                                                                                    row * TILE_HEIGHT - thisGame.screenPixelOffset[1]))
                                         if (thisGame.levelNum != 0):
-                                                if useTile == tileID['pellet']:
+                                                if useTile == tileID['pellet-power']:
                                                         self.destinoObjetivo = (row, col)
 
         def ChangeLevel(self, levelNum):
@@ -681,7 +682,7 @@ class level():
                                 for k in range(0, len(str_splitBySpace), 1):
                                         if (str_splitBySpace[k] == "?"):
                                                 if (randint(0, 10) == 0 and thisGame.numberPellets > 0):
-                                                        fout.write("2")
+                                                        fout.write("3")
                                                         thisGame.numberPellets = thisGame.numberPellets - 1
                                                 else:
                                                         fout.write("0")
@@ -796,7 +797,7 @@ class level():
                                                         player.homeY = rowNum * TILE_HEIGHT
                                                         self.SetMapTile((rowNum, k), 0)
 
-                                                elif thisID == 2:
+                                                elif thisID == 3:
                                                         # pellet
 
                                                         self.pellets += 1
