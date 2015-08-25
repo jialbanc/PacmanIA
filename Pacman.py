@@ -682,7 +682,7 @@ class level():
                                         str_splitBySpace = line.split(' ')
                                         for k in range(0, len(str_splitBySpace), 1):
                                                 if (str_splitBySpace[k] == "?"):
-                                                        if (randint(0, 200) == 100 and thisGame.numberPellets > 0):
+                                                        if (randint(0, 200) == randint(0, 200) and thisGame.numberPellets > 0):
                                                                 fout.write("3")
                                                                 thisGame.numberPellets = thisGame.numberPellets - 1
                                                         else:
