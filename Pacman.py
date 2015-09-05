@@ -68,6 +68,7 @@ class game():
 
 				self.select = 0
 				self.algorithm = 0
+				self.distance = 0
 				self.numberPellets = 1
 
 				self.SetMode(2)
@@ -90,6 +91,7 @@ class game():
 				self.imgMenu = pygame.image.load(os.path.join(SCRIPT_PATH, "res", "text", "menu.gif")).convert()
 				self.imgSelect = pygame.image.load(os.path.join(SCRIPT_PATH, "res", "text", "select.gif")).convert()
 				self.imgCheckAlgorithm = pygame.image.load(os.path.join(SCRIPT_PATH, "res", "text", "check.gif")).convert()
+				self.imgCheckDistance = pygame.image.load(os.path.join(SCRIPT_PATH, "res", "text", "check.gif")).convert()
 
 		def StartNewGame(self):
 				self.levelNum = 1
@@ -635,32 +637,52 @@ class level():
 																			  row * TILE_HEIGHT - thisGame.screenPixelOffset[1]))
 												screen.blit(thisGame.imgMenu, (
 														(thisGame.screenSize[0] / 2 - (thisGame.imgMenu.get_width() / 2)),
-														thisGame.screenSize[1] / 2 - (thisGame.imgMenu.get_height() / 2)))
+														thisGame.screenSize[1] / 2 - (thisGame.imgMenu.get_height() / 2) + 23))
 												if (thisGame.select == 0):
 														screen.blit(thisGame.imgSelect, (
 																thisGame.screenSize[0] / 2 - (thisGame.imgSelect.get_width() / 2) - 85,
 																(thisGame.screenSize[1] / 2 - (thisGame.imgSelect.get_height() / 2)) - (
-																		thisGame.imgMenu.get_height() / 2) + 18))
+																		thisGame.imgMenu.get_height() / 2) + 41))
 												elif (thisGame.select == 1):
 														screen.blit(thisGame.imgSelect, (
 																thisGame.screenSize[0] / 2 - (thisGame.imgSelect.get_width() / 2) - 85,
 																(thisGame.screenSize[1] / 2 - (thisGame.imgSelect.get_height() / 2)) + (
-																		thisGame.imgMenu.get_height() / 2) - 57))
+																		thisGame.imgMenu.get_height() / 2) - 145))
+												elif (thisGame.select == 2):
+														screen.blit(thisGame.imgSelect, (
+																thisGame.screenSize[0] / 2 - (thisGame.imgSelect.get_width() / 2) - 85,
+																(thisGame.screenSize[1] / 2 - (thisGame.imgSelect.get_height() / 2)) + (
+																		thisGame.imgMenu.get_height() / 2) - 108))
+												elif (thisGame.select == 3):
+														screen.blit(thisGame.imgSelect, (
+																thisGame.screenSize[0] / 2 - (thisGame.imgSelect.get_width() / 2) - 85,
+																(thisGame.screenSize[1] / 2 - (thisGame.imgSelect.get_height() / 2)) + (
+																		thisGame.imgMenu.get_height() / 2) - 33))
 												else:
 														screen.blit(thisGame.imgSelect, (
 																thisGame.screenSize[0] / 2 - (thisGame.imgSelect.get_width() / 2) - 85,
 																(thisGame.screenSize[1] / 2 - (thisGame.imgSelect.get_height() / 2)) + (
-																		thisGame.imgMenu.get_height() / 2) - 18))
+																		thisGame.imgMenu.get_height() / 2) + 4))
 												if (thisGame.algorithm == 0):
 														screen.blit(thisGame.imgCheckAlgorithm, (
-																thisGame.screenSize[0] / 2 - (thisGame.imgCheckAlgorithm.get_width() / 2) - 55,
+																thisGame.screenSize[0] / 2 - (thisGame.imgCheckAlgorithm.get_width() / 2) - 61,
 																(thisGame.screenSize[1] / 2 - (thisGame.imgCheckAlgorithm.get_height() / 2)) + (
-																		thisGame.imgMenu.get_height() / 2) - 57))
+																		thisGame.imgMenu.get_height() / 2) - 145))
 												else:
 														screen.blit(thisGame.imgCheckAlgorithm, (
-																thisGame.screenSize[0] / 2 - (thisGame.imgCheckAlgorithm.get_width() / 2) - 55,
+																thisGame.screenSize[0] / 2 - (thisGame.imgCheckAlgorithm.get_width() / 2) - 61,
 																(thisGame.screenSize[1] / 2 - (thisGame.imgCheckAlgorithm.get_height() / 2)) + (
-																		thisGame.imgMenu.get_height() / 2) - 18))
+																		thisGame.imgMenu.get_height() / 2) - 108))
+												if (thisGame.distance == 0):
+														screen.blit(thisGame.imgCheckAlgorithm, (
+																thisGame.screenSize[0] / 2 - (thisGame.imgCheckAlgorithm.get_width() / 2) - 61,
+																(thisGame.screenSize[1] / 2 - (thisGame.imgCheckAlgorithm.get_height() / 2)) + (
+																		thisGame.imgMenu.get_height() / 2) - 33))
+												else:
+														screen.blit(thisGame.imgCheckAlgorithm, (
+																thisGame.screenSize[0] / 2 - (thisGame.imgCheckAlgorithm.get_width() / 2) - 61,
+																(thisGame.screenSize[1] / 2 - (thisGame.imgCheckAlgorithm.get_height() / 2)) + (
+																		thisGame.imgMenu.get_height() / 2) + 4))
 
 										elif useTile == tileID['hiscores']:
 												screen.blit(thisGame.imHiscores, (col * TILE_WIDTH - thisGame.screenPixelOffset[0],
@@ -846,13 +868,17 @@ def CheckInputs():
 								thisGame.StartNewGame()
 						elif (thisGame.select == 1):
 								thisGame.algorithm = 0
-						else:
+						elif (thisGame.select == 2):
 								thisGame.algorithm = 1
+						elif (thisGame.select == 3):
+								thisGame.distance = 0
+						else:
+								thisGame.distance = 1
 				elif pygame.key.get_pressed()[pygame.K_UP]:
 						if (thisGame.select != 0):
 								thisGame.select = thisGame.select - 1
 				elif pygame.key.get_pressed()[pygame.K_DOWN]:
-						if (thisGame.select != 2):
+						if (thisGame.select != 4):
 								thisGame.select = thisGame.select + 1
 				elif pygame.key.get_pressed()[pygame.K_ESCAPE]:
 						pygame.quit()
